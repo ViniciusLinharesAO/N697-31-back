@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { insertUser, getUsers, updateUser, deleteUser } = require('./database'); // Importa as funções do database.js
+const { insertUser, getUsers, updateUser, deleteUser, deleteCarro, insertCarro, getCarro, updateCarro } = require('./database'); // Importa as funções do database.js
 
 // Inicializa o app Express
 const app = express();
@@ -59,7 +59,55 @@ app.delete('/users/:id', (req, res) => {
   const { id } = req.params;
   deleteUser(id, (err, result) => {
     if (err) {
-      res.status(500).json({ error: err.message || 'Erro ao deletar usuário' });
+      res.status(500).json({ error: err.message || 'Erro ao deletar usuários' });
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+// Rota para inserir um novo carro
+app.post('/cars', (req, res) => {
+  const { marca, modelo } = req.body;
+  insertCarro(marca, modelo, (err, cars) => {
+    if (err) {
+      res.status(500).json({ error: 'Erro ao inserir carro' });
+    } else {
+      res.status(201).json({ message: 'Carro inserido com sucesso!', cars });
+    }
+  });
+});
+
+// Rota para obter todos os carro
+app.get('/cars', (req, res) => {
+  getCarro((err, cars) => {
+    if (err) {
+      res.status(500).json({ error: 'Erro ao buscar carro' });
+    } else {
+      res.json(cars);
+    }
+  });
+});
+
+// Rota para atualizar um carro
+app.put('/cars/:id', (req, res) => {
+  const { id } = req.params;
+  const { marca, modelo } = req.body;
+  updateCarro(id, marca, modelo, (err, updatedCarro) => {
+    if (err) {
+      res.status(500).json({ error: err.message || 'Erro ao atualizar carro' });
+    } else {
+      res.json({ message: 'Carro atualizado com sucesso!', cars: updatedCarro });
+    }
+  });
+});
+
+// Rota para deletar um carro
+app.delete('/cars/:id', (req, res) => {
+  const { id } = req.params;
+  deleteCarro(id, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message || 'Erro ao deletar carro' });
     } else {
       res.json(result);
     }
