@@ -10,6 +10,72 @@ const db = new sqlite3.Database('database.db', (err) => {
   }
 });
 
+// Cria a tabela de categorias, se não existir
+db.serialize(() => {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT
+    )
+  `);
+});
+
+// Função para inserir uma categoria
+function insertCategory(name, callback) {
+  const query = `INSERT INTO categories (name) VALUES (?)`;
+  db.run(query, [name], function (err) {
+    if (err) {
+      console.error('Erro ao inserir categoria:', err.message);
+      callback(err);
+    } else {
+      callback(null, { id: this.lastID, name });
+    }
+  });
+}
+
+// Função para buscar todas as categorias
+function getCategories(callback) {
+  const query = `SELECT * FROM categories`;
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('Erro ao buscar categorias:', err.message);
+      callback(err);
+    } else {
+      callback(null, rows);
+    }
+  });
+}
+
+// Função para atualizar uma categoria
+function updateCategory(id, name, callback) {
+  const query = `UPDATE categories SET name = ? WHERE id = ?`;
+  db.run(query, [name, id], function (err) {
+    if (err) {
+      console.error('Erro ao atualizar categoria:', err.message);
+      callback(err);
+    } else if (this.changes === 0) {
+      callback(new Error('Categoria não encontrada'));
+    } else {
+      callback(null, { id, name });
+    }
+  });
+}
+
+// Função para deletar uma categoria
+function deleteCategory(id, callback) {
+  const query = `DELETE FROM categories WHERE id = ?`;
+  db.run(query, [id], function (err) {
+    if (err) {
+      console.error('Erro ao deletar categoria:', err.message);
+      callback(err);
+    } else if (this.changes === 0) {
+      callback(new Error('Categoria não encontrada'));
+    } else {
+      callback(null, { message: 'Categoria deletada com sucesso!' });
+    }
+  });
+}
+
 // Cria a tabela de usuários, se não existir
 db.serialize(() => {
   db.run(`
@@ -150,5 +216,9 @@ module.exports = {
   getCarro,
   updateCarro,
   deleteCarro,
+  insertCategory,
+  getCategories,
+  updateCategory,
+  deleteCategory,
   db,
 };

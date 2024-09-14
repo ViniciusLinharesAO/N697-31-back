@@ -114,6 +114,56 @@ app.delete('/cars/:id', (req, res) => {
   });
 });
 
+/* Rotas de Categorias */
+
+// Rota para inserir uma nova categoria
+app.post('/categories', (req, res) => {
+  const { name } = req.body;
+  insertCategory(name, (err, category) => {
+    if (err) {
+      res.status(500).json({ error: 'Erro ao inserir categoria' });
+    } else {
+      res.status(201).json({ message: 'Categoria inserida com sucesso!', category });
+    }
+  });
+});
+
+// Rota para obter todas as categorias
+app.get('/categories', (req, res) => {
+  getCategories((err, categories) => {
+    if (err) {
+      res.status(500).json({ error: 'Erro ao buscar categorias' });
+    } else {
+      res.json(categories);
+    }
+  });
+});
+
+// Rota para atualizar uma categoria
+app.put('/categories/:id', (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  updateCategory(id, name, (err, updatedCategory) => {
+    if (err) {
+      res.status(500).json({ error: err.message || 'Erro ao atualizar categoria' });
+    } else {
+      res.json({ message: 'Categoria atualizada com sucesso!', category: updatedCategory });
+    }
+  });
+});
+
+// Rota para deletar uma categoria
+app.delete('/categories/:id', (req, res) => {
+  const { id } = req.params;
+  deleteCategory(id, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message || 'Erro ao deletar categoria' });
+    } else {
+      res.json(result);
+    }
+  });
+});
+
 // Inicia o servidor
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
