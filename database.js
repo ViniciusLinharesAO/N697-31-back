@@ -19,6 +19,13 @@ db.serialize(() => {
       email TEXT
     )
   `);
+  db.run(`
+    CREATE TABLE IF NOT EXISTS cars (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      marca TEXT,
+      modelo TEXT
+    )
+  `);
 });
 
 // Função para inserir um usuário
@@ -77,11 +84,71 @@ function deleteUser(id, callback) {
   });
 }
 
+// Função para inserir um carro
+function insertCarro(marca, modelo, callback) {
+  const query = `INSERT INTO cars (marca, modelo) VALUES (?, ?)`;
+  db.run(query, [marca, modelo], function (err) {
+    if (err) {
+      console.error('Erro ao inserir carro:', err.message);
+      callback(err);
+    } else {
+      callback(null, { id: this.lastID, marca, modelo });
+    }
+  });
+}
+
+// Função para buscar todos os carro
+function getCarro(callback) {
+  const query = `SELECT * FROM cars`;
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('Erro ao buscar carros:', err.message);
+      callback(err);
+    } else {
+      callback(null, rows);
+    }
+  });
+}
+
+// Função para atualizar um carro
+function updateCarro(id, marca, modelo, callback) {
+  const query = `UPDATE cars SET marca = ?, modelo = ? WHERE id = ?`;
+  db.run(query, [marca, modelo, id], function (err) {
+    if (err) {
+      console.error('Erro ao atualizar carro:', err.message);
+      callback(err);
+    } else if (this.changes === 0) {
+      callback(new Error('Carro não encontrado'));
+    } else {
+      callback(null, { id, marca, modelo });
+    }
+  });
+}
+
+// Função para deletar um carro
+function deleteCarro(id, callback) {
+  const query = `DELETE FROM cars WHERE id = ?`;
+  db.run(query, [id], function (err) {
+    if (err) {
+      console.error('Erro ao deletar carro:', err.message);
+      callback(err);
+    } else if (this.changes === 0) {
+      callback(new Error('Carro não encontrado'));
+    } else {
+      callback(null, { message: 'Carro deletado com sucesso!' });
+    }
+  });
+}
+
 // Exporta as funções
 module.exports = {
   insertUser,
   getUsers,
   updateUser,
   deleteUser,
+  insertCarro,
+  getCarro,
+  updateCarro,
+  deleteCarro,
   db,
 };
