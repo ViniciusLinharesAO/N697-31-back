@@ -89,7 +89,9 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS cars (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       marca TEXT,
-      modelo TEXT
+      modelo TEXT,
+      category_id INTEGER,
+      FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE SET NULL
     )
   `);
 });
@@ -150,22 +152,26 @@ function deleteUser(id, callback) {
   });
 }
 
-// Função para inserir um carro
-function insertCarro(marca, modelo, callback) {
-  const query = `INSERT INTO cars (marca, modelo) VALUES (?, ?)`;
-  db.run(query, [marca, modelo], function (err) {
+// Função para inserir um carro com uma categoria
+function insertCarro(marca, modelo, category_id, callback) {
+  const query = `INSERT INTO cars (marca, modelo, category_id) VALUES (?, ?, ?)`;
+  db.run(query, [marca, modelo, category_id], function (err) {
     if (err) {
       console.error('Erro ao inserir carro:', err.message);
       callback(err);
     } else {
-      callback(null, { id: this.lastID, marca, modelo });
+      callback(null, { id: this.lastID, marca, modelo, category_id });
     }
   });
 }
 
-// Função para buscar todos os carro
+// Função para buscar todos os carros com suas respectivas categorias
 function getCarro(callback) {
-  const query = `SELECT * FROM cars`;
+  const query = `
+    SELECT cars.id, cars.marca, cars.modelo, categories.name as category_name
+    FROM cars
+    LEFT JOIN categories ON cars.category_id = categories.id
+  `;
   db.all(query, [], (err, rows) => {
     if (err) {
       console.error('Erro ao buscar carros:', err.message);
@@ -176,17 +182,17 @@ function getCarro(callback) {
   });
 }
 
-// Função para atualizar um carro
-function updateCarro(id, marca, modelo, callback) {
-  const query = `UPDATE cars SET marca = ?, modelo = ? WHERE id = ?`;
-  db.run(query, [marca, modelo, id], function (err) {
+// Função para atualizar um carro e sua categoria
+function updateCarro(id, marca, modelo, category_id, callback) {
+  const query = `UPDATE cars SET marca = ?, modelo = ?, category_id = ? WHERE id = ?`;
+  db.run(query, [marca, modelo, category_id, id], function (err) {
     if (err) {
       console.error('Erro ao atualizar carro:', err.message);
       callback(err);
     } else if (this.changes === 0) {
       callback(new Error('Carro não encontrado'));
     } else {
-      callback(null, { id, marca, modelo });
+      callback(null, { id, marca, modelo, category_id });
     }
   });
 }

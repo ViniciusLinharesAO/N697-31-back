@@ -1,8 +1,7 @@
-// index.js
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { insertUser, getUsers, updateUser, deleteUser, deleteCarro, insertCarro, getCarro, updateCarro } = require('./database'); // Importa as funções do database.js
+const { insertUser, getUsers, updateUser, deleteUser, deleteCarro, insertCarro, getCarro, updateCarro, insertCategory, getCategories, updateCategory, deleteCategory } = require('./database');
 
 // Inicializa o app Express
 const app = express();
@@ -66,10 +65,10 @@ app.delete('/users/:id', (req, res) => {
   });
 });
 
-// Rota para inserir um novo carro
+// Rota para inserir um novo carro com categoria
 app.post('/cars', (req, res) => {
-  const { marca, modelo } = req.body;
-  insertCarro(marca, modelo, (err, cars) => {
+  const { marca, modelo, category_id } = req.body;  // Adicionado category_id
+  insertCarro(marca, modelo, category_id, (err, cars) => {
     if (err) {
       res.status(500).json({ error: 'Erro ao inserir carro' });
     } else {
@@ -78,22 +77,22 @@ app.post('/cars', (req, res) => {
   });
 });
 
-// Rota para obter todos os carro
+// Rota para obter todos os carros com suas categorias
 app.get('/cars', (req, res) => {
   getCarro((err, cars) => {
     if (err) {
-      res.status(500).json({ error: 'Erro ao buscar carro' });
+      res.status(500).json({ error: 'Erro ao buscar carros' });
     } else {
       res.json(cars);
     }
   });
 });
 
-// Rota para atualizar um carro
+// Rota para atualizar um carro com categoria
 app.put('/cars/:id', (req, res) => {
   const { id } = req.params;
-  const { marca, modelo } = req.body;
-  updateCarro(id, marca, modelo, (err, updatedCarro) => {
+  const { marca, modelo, category_id } = req.body;  // Adicionado category_id
+  updateCarro(id, marca, modelo, category_id, (err, updatedCarro) => {
     if (err) {
       res.status(500).json({ error: err.message || 'Erro ao atualizar carro' });
     } else {
