@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { insertUser, getUsers, updateUser, deleteUser, deleteCarro, insertCarro, getCarro, updateCarro } = require('./database'); // Importa as funções do database.js
+const { insertUser, getUsers, updateUser, deleteUser, deleteCarro, insertCarro, getCarro, updateCarro, insertCategory, getCategories, updateCategory, deleteCategory, } = require('./database'); // Importa as funções do database.js
 
 // Inicializa o app Express
 const app = express();
